@@ -1,6 +1,7 @@
 package com.example.vicenteocampo.andpractice;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,13 +27,32 @@ public class MainActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         GridView gridview = (GridView) rootView.findViewById(R.id.grid);
-
+        //Adapter places images into the Gridview object
         gridview.setAdapter(new ImageAdapter(getActivity()));
-
+        //TODO
+        new fetchMovieImages().execute("dsdsd");
         return rootView;
     }
 
-    //extends BaseAdapter to be able images to Gridview
+    public class fetchMovieImages extends AsyncTask<String,Void,String>{
+
+        @Override
+        protected String doInBackground(String... params) {
+
+
+
+
+            return null;
+        }
+
+        protected void onPostExecute(String[] result) {}
+    }
+    //extends BaseAdapter to be able add images to Gridview
+
+
+
+
+
     public class ImageAdapter extends BaseAdapter{
         private Context mContext;
 
