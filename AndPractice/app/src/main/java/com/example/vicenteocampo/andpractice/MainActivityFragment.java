@@ -1,11 +1,14 @@
 package com.example.vicenteocampo.andpractice;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -35,6 +38,36 @@ public class MainActivityFragment extends Fragment {
     public MainActivityFragment() {
 
     }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // xml contains fragment that contains grid
+        setHasOptionsMenu(true);
+
+    }
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml
+            switch(item.getItemId()){
+                case R.id.sort_popular:
+                    new fetchMovieImages().execute("http://api.themoviedb.org/3/discover/movie?sort_" +
+                            "by=popularity.desc&api_key=[ API Key]");
+                    return true;
+                case R.id.sort_top:
+                    new fetchMovieImages().execute("http://api.themoviedb.org/3/discover/movie?sort_" +
+                            "by=vote_average.desc&api_key=[ API Key]");
+                    return true;
+                default:
+                    return super.onOptionsItemSelected(item);
+            }
+    }
+
+
 
     // Inflate our layout and attach adapter to GridView
     @Override
@@ -46,11 +79,12 @@ public class MainActivityFragment extends Fragment {
         //Adapter places images into the Gridview object
         gridAdapter = new ImageAdapter(getActivity());
         gridview.setAdapter(gridAdapter);
+        gridview.setFriction((float).564545);
 
         //Query for data, API key is omitted on public repo
         // Source: https://www.themoviedb.org/documentation/api?language=en
         new fetchMovieImages().execute("http://api.themoviedb.org/3/discover/movie?sort_" +
-                "by=popularity.desc&api_key=[YOUR API KEY]");
+                "by=popularity.desc&api_key=[ API Key]");
         return rootView;
     }
     //TODO onclickupdate
@@ -65,7 +99,7 @@ public class MainActivityFragment extends Fragment {
             JSONArray topRatedMovies = reader.getJSONArray("results");
 
             finalList = new String[topRatedMovies.length()];
-            Integer j = topRatedMovies.length();
+
 
             for (int i = 0; i < topRatedMovies.length(); i++) {
                 JSONObject movie = topRatedMovies.getJSONObject(i);
@@ -94,13 +128,10 @@ public class MainActivityFragment extends Fragment {
                 if (incoming == null) {
                     return null;
                 } else {
-
                     while ((result = reader.readLine()) != null) {
                         buildData.append(result + "/n");
                     }
                     result = buildData.toString();
-
-
                 }
 
             } catch (IOException e) {
@@ -118,19 +149,25 @@ public class MainActivityFragment extends Fragment {
                 // send result to be parsed
                 return getSortedMoviesArray(result);
             } catch (JSONException e) {
-                Log.e("Sort", e.getMessage());
+
             }
 
             return null;
         }
 
         protected void onPostExecute(String[] result) {
+            if(result == null)
+                return;
+            else {
 
-            for (String movie : result) {
-                gridAdapter.add(movie);
+                gridAdapter.clear();
+                for (String movie : result) {
+                    gridAdapter.add(movie);
+                }
+                //Update our View
+
+                gridAdapter.notifyDataSetChanged();
             }
-            //Update our View
-            gridAdapter.notifyDataSetChanged();
 
         }
     }
@@ -152,7 +189,7 @@ public class MainActivityFragment extends Fragment {
         }
 
         public Object getItem(int position) {
-            return null;
+            return mThumbIds.get(position);
         }
 
         public long getItemId(int position) {
@@ -162,15 +199,18 @@ public class MainActivityFragment extends Fragment {
         // create a new ImageView for each item referenced by the Adapter
         // Have Picasso handle image processing
         public View getView(int position, View convertView, ViewGroup parent) {
-            ImageView view = (ImageView) convertView;
-            if (view == null) {
+            ImageView view;
+            Log.v("image", "update image");
+            if (convertView == null) {
                 view = new ImageView(mContext);
                 view.setAdjustViewBounds(true);
+
                 view.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
                 view.setScaleType(ImageView.ScaleType.FIT_XY);
                 view.setPadding(5, 5, 5, 5);
             } else {
+
                 view = (ImageView) convertView;
             }
 
@@ -181,8 +221,11 @@ public class MainActivityFragment extends Fragment {
         }
 
         public void add(String result) {
-            Log.v("imgAdd", result);
+
             mThumbIds.add(result);
+        }
+        public void clear(){
+            mThumbIds.clear();
         }
 
 
