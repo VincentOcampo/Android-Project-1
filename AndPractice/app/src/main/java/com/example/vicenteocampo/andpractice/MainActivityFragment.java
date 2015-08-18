@@ -34,9 +34,15 @@ import java.util.ArrayList;
  */
 public class MainActivityFragment extends Fragment {
     ImageAdapter gridAdapter;
+    String source;
 
     public MainActivityFragment() {
 
+    }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putString("url",source);
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,18 +61,19 @@ public class MainActivityFragment extends Fragment {
         // as you specify a parent activity in AndroidManifest.xml
             switch(item.getItemId()){
                 case R.id.sort_popular:
-                    new fetchMovieImages().execute("http://api.themoviedb.org/3/discover/movie?sort_" +
-                            "by=popularity.desc&api_key=[ API Key]");
+                    source = "http://api.themoviedb.org/3/discover/movie?sort_" +
+                    "by=popularity.desc&api_key=[API KEY]";
+                    new fetchMovieImages().execute(source);
                     return true;
                 case R.id.sort_top:
-                    new fetchMovieImages().execute("http://api.themoviedb.org/3/discover/movie?sort_" +
-                            "by=vote_average.desc&api_key=[ API Key]");
+                    source = "http://api.themoviedb.org/3/discover/movie?sort_" +
+                            "by=vote_average.desc&api_key=[API KEY]";
+                    new fetchMovieImages().execute(source);
                     return true;
                 default:
                     return super.onOptionsItemSelected(item);
             }
     }
-
 
 
     // Inflate our layout and attach adapter to GridView
@@ -77,14 +84,21 @@ public class MainActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         GridView gridview = (GridView) rootView.findViewById(R.id.grid);
         //Adapter places images into the Gridview object
-        gridAdapter = new ImageAdapter(getActivity());
-        gridview.setAdapter(gridAdapter);
-        gridview.setFriction((float).564545);
+
+        source = "http://api.themoviedb.org/3/discover/movie?sort_" +
+                "by=popularity.desc&api_key=[API KEY]";
+        if(savedInstanceState != null)
+            source = savedInstanceState.getString("url");
+
+            gridAdapter = new ImageAdapter(getActivity());
+            gridview.setAdapter(gridAdapter);
+            gridview.setFriction((float) .564545);
 
         //Query for data, API key is omitted on public repo
-        // Source: https://www.themoviedb.org/documentation/api?language=en
-        new fetchMovieImages().execute("http://api.themoviedb.org/3/discover/movie?sort_" +
-                "by=popularity.desc&api_key=[ API Key]");
+            // Source: https://www.themoviedb.org/documentation/api?language=en
+
+            new fetchMovieImages().execute(source);
+
         return rootView;
     }
     //TODO onclickupdate
@@ -92,7 +106,7 @@ public class MainActivityFragment extends Fragment {
     public class fetchMovieImages extends AsyncTask<String, Void, String[]> {
         //JSON Parsing
         public String[] getSortedMoviesArray(String result) throws JSONException {
-            String baseString = "http://image.tmdb.org/t/p/w500/";
+            String baseString = "http://image.tmdb.org/t/p/w342/";
             String[] finalList;
             JSONObject reader = new JSONObject(result);
 
@@ -187,6 +201,7 @@ public class MainActivityFragment extends Fragment {
         public int getCount() {
             return mThumbIds.size();
         }
+
 
         public Object getItem(int position) {
             return mThumbIds.get(position);
