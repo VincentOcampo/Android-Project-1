@@ -1,6 +1,7 @@
 package com.example.vicenteocampo.andpractice;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -28,6 +30,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -35,6 +38,7 @@ import java.util.ArrayList;
 public class MainActivityFragment extends Fragment {
     ImageAdapter gridAdapter;
     String source;
+    String apiKey;
 
     public MainActivityFragment() {
 
@@ -47,12 +51,13 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // xml contains fragment that contains grid
+        // xml contains fragment with grid
         setHasOptionsMenu(true);
+        apiKey = "";
+
+
 
     }
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -62,12 +67,12 @@ public class MainActivityFragment extends Fragment {
             switch(item.getItemId()){
                 case R.id.sort_popular:
                     source = "http://api.themoviedb.org/3/discover/movie?sort_" +
-                    "by=popularity.desc&api_key=[API KEY]";
+                    "by=popularity.desc&api_key=" + apiKey;
                     new fetchMovieImages().execute(source);
                     return true;
                 case R.id.sort_top:
                     source = "http://api.themoviedb.org/3/discover/movie?sort_" +
-                            "by=vote_average.desc&api_key=[API KEY]";
+                            "by=vote_average.desc&api_key=" + apiKey;
                     new fetchMovieImages().execute(source);
                     return true;
                 default:
@@ -82,11 +87,11 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        GridView gridview = (GridView) rootView.findViewById(R.id.grid);
+        final GridView gridview = (GridView) rootView.findViewById(R.id.grid);
         //Adapter places images into the Gridview object
 
         source = "http://api.themoviedb.org/3/discover/movie?sort_" +
-                "by=popularity.desc&api_key=[API KEY]";
+                "by=popularity.desc&api_key=" + apiKey;
         if(savedInstanceState != null)
             source = savedInstanceState.getString("url");
 
@@ -94,30 +99,40 @@ public class MainActivityFragment extends Fragment {
             gridview.setAdapter(gridAdapter);
             gridview.setFriction((float) .564545);
 
-        //Query for data, API key is omitted on public repo
+            //Query for data, API key is omitted on public repo
             // Source: https://www.themoviedb.org/documentation/api?language=en
-
             new fetchMovieImages().execute(source);
+
+        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+              String idInfo = idMap.get(gridAdapter.getItem(position));
+                Intent  details = new Intent(getActivity(), detailsActivity.class);
+                details.putExtra("id",idInfo);
+                startActivity(details);
+            }
+        });
 
         return rootView;
     }
-    //TODO onclickupdate
+    HashMap<String,String> idMap = new HashMap<>();
     // Parses data from query and updates View with adapter in a background thread
     public class fetchMovieImages extends AsyncTask<String, Void, String[]> {
         //JSON Parsing
         public String[] getSortedMoviesArray(String result) throws JSONException {
             String baseString = "http://image.tmdb.org/t/p/w342/";
             String[] finalList;
+
+
             JSONObject reader = new JSONObject(result);
-
             JSONArray topRatedMovies = reader.getJSONArray("results");
-
             finalList = new String[topRatedMovies.length()];
 
 
             for (int i = 0; i < topRatedMovies.length(); i++) {
                 JSONObject movie = topRatedMovies.getJSONObject(i);
                 finalList[i] = baseString + movie.getString("poster_path");
+                idMap.put(finalList[i],movie.toString());
             }
 
             return finalList;
@@ -203,7 +218,7 @@ public class MainActivityFragment extends Fragment {
         }
 
 
-        public Object getItem(int position) {
+        public String getItem(int position) {
             return mThumbIds.get(position);
         }
 
