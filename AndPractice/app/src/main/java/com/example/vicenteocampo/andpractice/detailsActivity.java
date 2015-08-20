@@ -1,26 +1,52 @@
 package com.example.vicenteocampo.andpractice;
 
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class detailsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_details);
 
         TextView info = (TextView) findViewById(R.id.movieInfo);
-
         info.setText(getIntent().getStringExtra("id"));
+        info.setTextColor(Color.WHITE);
+        ImageView poster = (ImageView) findViewById(R.id.detailImage);
+        poster.setAdjustViewBounds(true);
 
+        Picasso.with(this)
+                .load(getPoster(getIntent().getStringExtra("id")))
+                .into(poster)
+        ;
     }
 
 
+    public String getPoster (String data) {
 
+        String baseString = "http://image.tmdb.org/t/p/w342/";
+        String posterString = new String();
+        try {
+            JSONObject movie = new JSONObject(data);
+            posterString = movie.getString("poster_path");
+        }catch(JSONException e){}
+        return new String(baseString + posterString);
+
+
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
