@@ -21,18 +21,21 @@ public class detailsActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_details);
 
-        TextView info = (TextView) findViewById(R.id.movieInfo);
-        info.setText(getIntent().getStringExtra("id"));
-        info.setTextColor(Color.WHITE);
+        TextView plot = (TextView) findViewById(R.id.moviePlot);
+        plot.setText(getPlot(getIntent().getStringExtra("id")));
+        plot.setTextColor(Color.WHITE);
+
+        TextView movieInfo = (TextView) findViewById(R.id.movieInfo);
+        movieInfo.setText(getMovieInfo(getIntent().getStringExtra("id")));
+        movieInfo.setTextColor(Color.WHITE);
+
         ImageView poster = (ImageView) findViewById(R.id.detailImage);
         poster.setAdjustViewBounds(true);
 
         Picasso.with(this)
                 .load(getPoster(getIntent().getStringExtra("id")))
-                .into(poster)
-        ;
+                .into(poster);
     }
-
 
     public String getPoster (String data) {
 
@@ -43,10 +46,32 @@ public class detailsActivity extends AppCompatActivity {
             posterString = movie.getString("poster_path");
         }catch(JSONException e){}
         return new String(baseString + posterString);
-
-
-
     }
+
+    public String getPlot(String data){
+        String plot = "Plot Synopsis: \n";
+
+        try {
+            JSONObject movie = new JSONObject(data);
+            plot = plot +  movie.getString("overview");
+        }catch(JSONException e){}
+        return plot;
+    }
+    public String getMovieInfo(String data){
+        String title = "Title: ";
+        String release = "Release Date: ";
+        String voteAverage = "Vote Average: ";
+
+
+        try {
+            JSONObject movie = new JSONObject(data);
+            title = title +  movie.getString("title") + "\n";
+            voteAverage = voteAverage + movie.getString("vote_average") ;
+            release = release + movie.getString("release_date") + "\n";
+        }catch(JSONException e){}
+        return title + release + voteAverage;
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
