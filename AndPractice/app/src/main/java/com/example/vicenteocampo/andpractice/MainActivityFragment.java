@@ -54,9 +54,6 @@ public class MainActivityFragment extends Fragment {
         // xml contains fragment with grid
         setHasOptionsMenu(true);
         apiKey = "";
-
-
-
     }
 
     @Override
