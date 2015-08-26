@@ -53,7 +53,7 @@ public class MainActivityFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // xml contains fragment with grid
         setHasOptionsMenu(true);
-        apiKey = "";
+        apiKey = "" ;
     }
 
     @Override
