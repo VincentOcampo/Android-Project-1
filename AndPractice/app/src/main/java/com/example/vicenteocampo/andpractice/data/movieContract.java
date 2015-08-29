@@ -1,5 +1,7 @@
 package com.example.vicenteocampo.andpractice.data;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -8,12 +10,23 @@ import android.provider.BaseColumns;
  */
 public class movieContract {
 
+    public static final String CONTENT_AUTHORITY = "com.example.vicenteocampo.andPractice";
+
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+    public static final String PATH_MOVIES = "movies";
+
     // defined columns of database for a movie entry
     public static final class MovieEntry implements BaseColumns {
 
-        public static final String CONTENT_AUTHORITY = "com.example.vicenteocampo.and";
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES)
+               .build();
 
-        public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
+
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
 
         public static final String TABLE_NAME = "movieDB";
 
@@ -30,6 +43,16 @@ public class movieContract {
         public static final String COLUMN_RATING  = "rating";
 
         public static final String COLUMN_RELEASE = "release";
+
+
+        public static Uri buildMovieUri(long id){
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        public static Uri buildMovieSlot(String movieId){
+            return CONTENT_URI.buildUpon().appendPath(movieId).build();
+        }
+
     }
 
 }
