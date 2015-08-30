@@ -4,40 +4,47 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import com.example.vicenteocampo.andpractice.data.MovieContract.MovieEntry;
 
 /**
  * Created by Vicente Ocampo on 8/28/2015.
  */
-public class movieProvider extends ContentProvider {
+public class MovieProvider extends ContentProvider {
 
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
-    private movieDB mOpenHelper;
+    private MovieDB mOpenHelper;
 
     static final int MOVIE = 100;
+    static final int MOVIE_ID = 101;
 
 
-    private static final SQLiteQueryBuilder sMovieQueryBuilder;
+    static UriMatcher buildUriMatcher(){
+
+        final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
+        final String authority = MovieContract.CONTENT_AUTHORITY;
 
 
-    static{
-        sMovieQueryBuilder = new SQLiteQueryBuilder();
+        matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIE );
+        matcher.addURI(authority, MovieContract.PATH_MOVIES + "/#",MOVIE_ID);
 
-
-
-
+        return matcher;
     }
 
     @Override
     public boolean onCreate() {
-        return false;
+        mOpenHelper = new MovieDB(getContext());
+
+        return true;
     }
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        return null;
+        Cursor retCursor = mOpenHelper.getReadableDatabase().query(MovieEntry.TABLE_NAME,null,
+                selection,selectionArgs,null,null,null); ;
+
+        return retCursor;
     }
 
     @Override

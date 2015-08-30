@@ -2,13 +2,11 @@ package com.example.vicenteocampo.andpractice;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,7 +102,7 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
               String idInfo = idMap.get(gridAdapter.getItem(position));
-                Intent  details = new Intent(getActivity(), detailsActivity.class);
+                Intent  details = new Intent(getActivity(), DetailsActivity.class);
                 details.putExtra("id",idInfo);
                 startActivity(details);
             }

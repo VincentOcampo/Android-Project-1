@@ -4,17 +4,17 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.vicenteocampo.andpractice.data.movieContract.MovieEntry;
+import com.example.vicenteocampo.andpractice.data.MovieContract.MovieEntry;
 
 /**
  * Created by Vicente Ocampo on 8/25/2015.
  */
-public class movieDB extends SQLiteOpenHelper {
+public class MovieDB extends SQLiteOpenHelper {
 
      private static final int DATABASE_VERSION = 2;
 
 
-     movieDB(Context context){
+     MovieDB(Context context){
 
          super(context,MovieEntry.TABLE_NAME,null, DATABASE_VERSION);
      }

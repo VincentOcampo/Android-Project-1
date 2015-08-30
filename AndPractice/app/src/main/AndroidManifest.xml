@@ -20,10 +20,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".detailsActivity"
+            android:name=".DetailsActivity"
             android:label="Movie Details"
             android:screenOrientation="landscape">
         </activity>
+        <provider
+            android:authorities="com.example.vicenteocampo.andPractice"
+            android:name=".data.MovieProvider"/>
     </application>
 
 </manifest>

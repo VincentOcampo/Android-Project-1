@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
 /**
  * Created by Vicente Ocampo on 8/25/2015.
  */
-public class movieContract {
+public class MovieContract {
 
     public static final String CONTENT_AUTHORITY = "com.example.vicenteocampo.andPractice";
 
@@ -28,7 +28,7 @@ public class movieContract {
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
 
-        public static final String TABLE_NAME = "movieDB";
+        public static final String TABLE_NAME = "MovieDB";
 
         public static final String COLUMN_ID = "unique_id";
 
