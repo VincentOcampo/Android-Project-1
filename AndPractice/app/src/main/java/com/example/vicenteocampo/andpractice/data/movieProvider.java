@@ -4,6 +4,7 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import com.example.vicenteocampo.andpractice.data.MovieContract.MovieEntry;
 
@@ -16,8 +17,8 @@ public class MovieProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private MovieDB mOpenHelper;
 
-    static final int MOVIE = 100;
-    static final int MOVIE_ID = 101;
+    static final int MOVIES= 100;
+    static final int FAV_MOVIES = 101;
 
 
     static UriMatcher buildUriMatcher(){
@@ -26,8 +27,7 @@ public class MovieProvider extends ContentProvider {
         final String authority = MovieContract.CONTENT_AUTHORITY;
 
 
-        matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIE );
-        matcher.addURI(authority, MovieContract.PATH_MOVIES + "/#",MOVIE_ID);
+        matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIES );
 
         return matcher;
     }
@@ -41,9 +41,15 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        Cursor retCursor = mOpenHelper.getReadableDatabase().query(MovieEntry.TABLE_NAME,null,
-                selection,selectionArgs,null,null,null); ;
+        Cursor retCursor = mOpenHelper.getReadableDatabase().query(MovieEntry.TABLE_NAME,
+                null,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder);
 
+        retCursor.setNotificationUri(getContext().getContentResolver(),uri);
         return retCursor;
     }
 
@@ -54,16 +60,56 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        return null;
+
+        Uri retUri = null;
+
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        long _id = db.insert(MovieEntry.TABLE_NAME,null,values);
+
+        if( _id > 0)
+            retUri = MovieEntry.buildMovieUri(_id);
+        else
+            throw new android.database.SQLException("Failed insertion of "+ uri);
+        getContext().getContentResolver().notifyChange(uri, null);
+        return retUri;
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+
+        int rowsDeleted;
+
+        if(selection == null) selection = "1";
+
+        rowsDeleted = db.delete(
+                MovieEntry.TABLE_NAME,selection, selectionArgs);
+        if(rowsDeleted != 0){
+            getContext().getContentResolver().notifyChange(uri,null);
+        }
+
+
+        return rowsDeleted;
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+
+        int rowsUpdated;
+
+        if(selection == null) selection = "1";
+
+        rowsUpdated = db.update(
+                MovieEntry.TABLE_NAME,values,selection, selectionArgs);
+        if(rowsUpdated!= 0){
+            getContext().getContentResolver().notifyChange(uri,null);
+        }
+
+
+        return rowsUpdated;
     }
+
 }
