@@ -40,9 +40,8 @@ public class MovieContract {
 
         public static final String COlUMN_SUMMARY = "summary";
 
-        public static final String COLUMN_RATING  = "rating";
+        public static final String COLUMN_INFO  = "info";
 
-        public static final String COLUMN_RELEASE = "release";
 
 
         public static Uri buildMovieUri(long id){

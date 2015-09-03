@@ -42,7 +42,7 @@ public class MovieProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor retCursor = mOpenHelper.getReadableDatabase().query(MovieEntry.TABLE_NAME,
-                null,
+                projection,
                 selection,
                 selectionArgs,
                 null,
@@ -103,13 +103,34 @@ public class MovieProvider extends ContentProvider {
         if(selection == null) selection = "1";
 
         rowsUpdated = db.update(
-                MovieEntry.TABLE_NAME,values,selection, selectionArgs);
+                MovieEntry.TABLE_NAME, values, selection, selectionArgs);
         if(rowsUpdated!= 0){
             getContext().getContentResolver().notifyChange(uri,null);
         }
-
-
         return rowsUpdated;
     }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values){
+
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+
+        db.beginTransaction();
+        int returnCount = 0;
+        try {
+            for (ContentValues value : values) {
+                long _id = db.insert(MovieEntry.TABLE_NAME, null, value);
+                if (_id != -1) {
+                    returnCount++;
+                }
+            }
+
+            db.setTransactionSuccessful();
+        }finally {
+            db.endTransaction();
+        }
+            return returnCount;
+        }
+    
 
 }

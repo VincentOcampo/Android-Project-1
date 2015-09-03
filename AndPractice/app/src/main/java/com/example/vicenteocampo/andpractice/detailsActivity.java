@@ -1,13 +1,18 @@
 package com.example.vicenteocampo.andpractice;
 
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.vicenteocampo.andpractice.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -21,56 +26,32 @@ public class DetailsActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_details);
 
+        Cursor cDetails = getContentResolver().query(
+                MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
+
+        cDetails.moveToPosition(getIntent().getIntExtra("id", 0));
         TextView plot = (TextView) findViewById(R.id.moviePlot);
-        plot.setText(getPlot(getIntent().getStringExtra("id")));
+        plot.setText(cDetails.getString(cDetails.getColumnIndex(MovieContract.MovieEntry.COlUMN_SUMMARY)));
         plot.setTextColor(Color.WHITE);
 
         TextView movieInfo = (TextView) findViewById(R.id.movieInfo);
-        movieInfo.setText(getMovieInfo(getIntent().getStringExtra("id")));
+        movieInfo.setText(cDetails.getString(cDetails.getColumnIndex(MovieContract.MovieEntry.COLUMN_INFO)));
         movieInfo.setTextColor(Color.WHITE);
+
 
         ImageView poster = (ImageView) findViewById(R.id.detailImage);
         poster.setAdjustViewBounds(true);
+        Bitmap b;
+        byte[] res = cDetails.getBlob(cDetails.getColumnIndex(MovieContract.
+                MovieEntry.COLUMN_POSTER));
 
-        Picasso.with(this)
-                .load(getPoster(getIntent().getStringExtra("id")))
-                .into(poster);
+
+        b = BitmapFactory.decodeByteArray(res, 0, res.length);
+        poster.setImageBitmap(b);
+        cDetails.close();
+
     }
 
-    public String getPoster (String data) {
-
-        String baseString = "http://image.tmdb.org/t/p/w342/";
-        String posterString = new String();
-        try {
-            JSONObject movie = new JSONObject(data);
-            posterString = movie.getString("poster_path");
-        }catch(JSONException e){}
-        return new String(baseString + posterString);
-    }
-
-    public String getPlot(String data){
-        String plot = "Plot Synopsis: \n";
-
-        try {
-            JSONObject movie = new JSONObject(data);
-            plot = plot +  movie.getString("overview");
-        }catch(JSONException e){}
-        return plot;
-    }
-    public String getMovieInfo(String data){
-        String title = "Title: ";
-        String release = "Release Date: ";
-        String voteAverage = "Vote Average: ";
-
-
-        try {
-            JSONObject movie = new JSONObject(data);
-            title = title +  movie.getString("title") + "\n";
-            voteAverage = voteAverage + movie.getString("vote_average") ;
-            release = release + movie.getString("release_date") + "\n";
-        }catch(JSONException e){}
-        return title + release + voteAverage;
-    }
 
 
     @Override

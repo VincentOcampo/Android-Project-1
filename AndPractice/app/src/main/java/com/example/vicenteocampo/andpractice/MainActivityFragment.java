@@ -2,6 +2,9 @@ package com.example.vicenteocampo.andpractice;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -15,6 +18,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.example.vicenteocampo.andpractice.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -38,6 +42,7 @@ public class MainActivityFragment extends Fragment {
     String source;
     String apiKey;
 
+
     public MainActivityFragment() {
 
     }
@@ -48,6 +53,7 @@ public class MainActivityFragment extends Fragment {
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         // xml contains fragment with grid
         setHasOptionsMenu(true);
@@ -59,16 +65,17 @@ public class MainActivityFragment extends Fragment {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml
+
             switch(item.getItemId()){
                 case R.id.sort_popular:
                     source = "http://api.themoviedb.org/3/discover/movie?sort_" +
                     "by=popularity.desc&api_key=" + apiKey;
-                    new fetchMovieImages().execute(source);
+                    new FetchMoviesTask(getActivity(),gridAdapter).execute(source);
                     return true;
                 case R.id.sort_top:
                     source = "http://api.themoviedb.org/3/discover/movie?sort_" +
                             "by=vote_average.desc&api_key=" + apiKey;
-                    new fetchMovieImages().execute(source);
+                    new FetchMoviesTask(getActivity(),gridAdapter).execute(source);
                     return true;
                 default:
                     return super.onOptionsItemSelected(item);
@@ -92,120 +99,37 @@ public class MainActivityFragment extends Fragment {
 
             gridAdapter = new ImageAdapter(getActivity());
             gridview.setAdapter(gridAdapter);
-            gridview.setFriction((float) .564545);
+
 
             //Query for data, API key is omitted on public repo
             // Source: https://www.themoviedb.org/documentation/api?language=en
-            new fetchMovieImages().execute(source);
+            new FetchMoviesTask(getActivity(),gridAdapter).execute(source);
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-              String idInfo = idMap.get(gridAdapter.getItem(position));
+
                 Intent  details = new Intent(getActivity(), DetailsActivity.class);
-                details.putExtra("id",idInfo);
+                details.putExtra("id",position);
                 startActivity(details);
             }
         });
 
         return rootView;
     }
-    HashMap<String,String> idMap = new HashMap<>();
+
     // Parses data from query and updates View with adapter in a background thread
-    public class fetchMovieImages extends AsyncTask<String, Void, String[]> {
-        //JSON Parsing
-        public String[] getSortedMoviesArray(String result) throws JSONException {
-            String baseString = "http://image.tmdb.org/t/p/w342/";
-            String[] finalList;
 
-
-            JSONObject reader = new JSONObject(result);
-            JSONArray topRatedMovies = reader.getJSONArray("results");
-            finalList = new String[topRatedMovies.length()];
-
-
-            for (int i = 0; i < topRatedMovies.length(); i++) {
-                JSONObject movie = topRatedMovies.getJSONObject(i);
-                finalList[i] = baseString + movie.getString("poster_path");
-                idMap.put(finalList[i],movie.toString());
-            }
-
-            return finalList;
-        }
-
-        @Override
-        protected String[] doInBackground(String... params) {
-            String result;
-            InputStream incoming = null;
-            try {
-
-                URL url = new URL(params[0]);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.connect();
-
-                incoming = connection.getInputStream();
-                InputStreamReader is = new InputStreamReader(incoming);
-                BufferedReader reader = new BufferedReader(is);
-                StringBuilder buildData = new StringBuilder();
-
-                if (incoming == null) {
-                    return null;
-                } else {
-                    while ((result = reader.readLine()) != null) {
-                        buildData.append(result + "/n");
-                    }
-                    result = buildData.toString();
-                }
-
-            } catch (IOException e) {
-                return null;
-
-            } finally {
-                if (incoming != null) {
-                    try {
-                        incoming.close();
-                    } catch (IOException e) {
-                    }
-                }
-            }
-            try {
-                // send result to be parsed
-                return getSortedMoviesArray(result);
-            } catch (JSONException e) {
-
-            }
-
-            return null;
-        }
-
-        protected void onPostExecute(String[] result) {
-            if(result == null)
-                return;
-            else {
-
-                gridAdapter.clear();
-                for (String movie : result) {
-                    gridAdapter.add(movie);
-                }
-                //Update our View
-
-                gridAdapter.notifyDataSetChanged();
-            }
-
-        }
-    }
 
     //extends BaseAdapter to be able add images to Gridview
 
     //Populates our gridview with images
     public class ImageAdapter extends BaseAdapter {
         private Context mContext;
-        private ArrayList<String> mThumbIds;
+        private ArrayList<String> mThumbIds = new ArrayList<>();
 
         public ImageAdapter(Context c) {
             mContext = c;
-            mThumbIds = new ArrayList<String>();
         }
 
         public int getCount() {
@@ -222,7 +146,7 @@ public class MainActivityFragment extends Fragment {
         }
 
         // create a new ImageView for each item referenced by the Adapter
-        // Have Picasso handle image processing
+
         public View getView(int position, View convertView, ViewGroup parent) {
             ImageView view;
             Log.v("image", "update image");
@@ -234,14 +158,25 @@ public class MainActivityFragment extends Fragment {
                         ViewGroup.LayoutParams.MATCH_PARENT));
                 view.setScaleType(ImageView.ScaleType.FIT_XY);
                 view.setPadding(5, 5, 5, 5);
+
             } else {
 
                 view = (ImageView) convertView;
             }
 
+            Cursor cImage = mContext.getContentResolver().query(
+                    MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
 
-            Picasso.with(mContext).load(mThumbIds.get(position)).into(view);
+            cImage.moveToPosition(position);
+            Bitmap b;
+            byte[] res = cImage.getBlob(cImage.getColumnIndex(MovieContract.
+                    MovieEntry.COLUMN_POSTER));
 
+            Log.v("uri", MovieContract.MovieEntry.buildMovieUri(position).toString());
+            Log.v("byte", res.toString());
+            b = BitmapFactory.decodeByteArray(res,0,res.length);
+            view.setImageBitmap(b);
+            cImage.close();
             return view;
         }
 

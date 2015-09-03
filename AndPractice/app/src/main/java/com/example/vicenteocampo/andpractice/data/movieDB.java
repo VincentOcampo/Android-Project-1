@@ -11,7 +11,7 @@ import com.example.vicenteocampo.andpractice.data.MovieContract.MovieEntry;
  */
 public class MovieDB extends SQLiteOpenHelper {
 
-     private static final int DATABASE_VERSION = 2;
+     private static final int DATABASE_VERSION = 1;
 
 
      MovieDB(Context context){
@@ -21,13 +21,13 @@ public class MovieDB extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
-                MovieEntry.COLUMN_ID + " INTEGER PRIMARY KEY, " +
-                MovieEntry.COLUMN_POSTER + " TEXT UNIQUE NOT NULL, " +
-                MovieEntry.COLUMN_RATING + " TEXT UNIQUE NOT NULL, " +
-                MovieEntry.COLUMN_RELEASE + " TEXT UNIQUE NOT NULL, " +
-                MovieEntry.COLUMN_REVIEW + " TEXT UNIQUE NOT NULL, " +
-                MovieEntry.COlUMN_SUMMARY + " TEXT UNIQUE NOT NULL, " +
-                MovieEntry.COLUMN_TRAILER + " TEXT UNIQUE NOT NULL, " + " );");
+                MovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                MovieEntry.COLUMN_ID + " INTEGER , " +
+                MovieEntry.COLUMN_POSTER + " BLOB , " +
+                MovieEntry.COLUMN_INFO + " TEXT  , " +
+                MovieEntry.COLUMN_REVIEW + " TEXT  , " +
+                MovieEntry.COlUMN_SUMMARY + " TEXT , " +
+                MovieEntry.COLUMN_TRAILER + " TEXT  " + " );");
 
     }
 
