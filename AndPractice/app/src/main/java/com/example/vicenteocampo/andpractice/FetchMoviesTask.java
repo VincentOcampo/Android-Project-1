@@ -27,11 +27,10 @@ import java.util.HashMap;
  */
 public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
 
-
     Context mContext;
-    MainActivityFragment.ImageAdapter gridAdapter;
+    MovieAdapter gridAdapter;
 
-    public FetchMoviesTask(Context mContext,MainActivityFragment.ImageAdapter imageAdapter){
+    public FetchMoviesTask(Context mContext,MovieAdapter imageAdapter){
             this.mContext = mContext;
             gridAdapter = imageAdapter;
 
@@ -47,7 +46,7 @@ public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
             finalList = new String[topRatedMovies.length()];
             Cursor cFetch = mContext.getContentResolver().query(
                     MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
-
+//TODO: Image adapter no longer needs finalList array. Get size from  cursor
             for (int i = 0; i < topRatedMovies.length(); i++) {
                     JSONObject movie = topRatedMovies.getJSONObject(i);
                     finalList[i] = baseString + movie.getString("poster_path");
@@ -63,7 +62,7 @@ public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
                     }
                 }
 
-
+             cFetch.close();
             return finalList;
     }
 
@@ -167,21 +166,8 @@ public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
         }
 
         protected void onPostExecute(String[] result) {
-            if(result == null){
-                Log.v("onPost","yee");
                 gridAdapter.notifyDataSetChanged();
-                return ;
-            }
-            else {
 
-                gridAdapter.clear();
-                for (String movie : result) {
-                    gridAdapter.add(movie);
-                }
-                //Update our View
-
-                gridAdapter.notifyDataSetChanged();
-            }
 
         }
     }

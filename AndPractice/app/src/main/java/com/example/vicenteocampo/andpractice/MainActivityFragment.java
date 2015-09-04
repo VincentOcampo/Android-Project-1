@@ -38,7 +38,7 @@ import java.util.HashMap;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
-    ImageAdapter gridAdapter;
+    MovieAdapter gridAdapter;
     String source;
     String apiKey;
 
@@ -91,13 +91,16 @@ public class MainActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         final GridView gridview = (GridView) rootView.findViewById(R.id.grid);
         //Adapter places images into the Gridview object
-
+        Cursor cur = getActivity().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,null
+        ,null,null,null);
         source = "http://api.themoviedb.org/3/discover/movie?sort_" +
                 "by=popularity.desc&api_key=" + apiKey;
         if(savedInstanceState != null)
             source = savedInstanceState.getString("url");
 
-            gridAdapter = new ImageAdapter(getActivity());
+
+
+            gridAdapter = new MovieAdapter(getActivity(),cur,0);
             gridview.setAdapter(gridAdapter);
 
 
@@ -118,76 +121,5 @@ public class MainActivityFragment extends Fragment {
         return rootView;
     }
 
-    // Parses data from query and updates View with adapter in a background thread
 
-
-    //extends BaseAdapter to be able add images to Gridview
-
-    //Populates our gridview with images
-    public class ImageAdapter extends BaseAdapter {
-        private Context mContext;
-        private ArrayList<String> mThumbIds = new ArrayList<>();
-
-        public ImageAdapter(Context c) {
-            mContext = c;
-        }
-
-        public int getCount() {
-            return mThumbIds.size();
-        }
-
-
-        public String getItem(int position) {
-            return mThumbIds.get(position);
-        }
-
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        // create a new ImageView for each item referenced by the Adapter
-
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ImageView view;
-            Log.v("image", "update image");
-            if (convertView == null) {
-                view = new ImageView(mContext);
-                view.setAdjustViewBounds(true);
-
-                view.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT));
-                view.setScaleType(ImageView.ScaleType.FIT_XY);
-                view.setPadding(5, 5, 5, 5);
-
-            } else {
-
-                view = (ImageView) convertView;
-            }
-
-            Cursor cImage = mContext.getContentResolver().query(
-                    MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
-
-            cImage.moveToPosition(position);
-            Bitmap b;
-            byte[] res = cImage.getBlob(cImage.getColumnIndex(MovieContract.
-                    MovieEntry.COLUMN_POSTER));
-
-            Log.v("uri", MovieContract.MovieEntry.buildMovieUri(position).toString());
-            Log.v("byte", res.toString());
-            b = BitmapFactory.decodeByteArray(res,0,res.length);
-            view.setImageBitmap(b);
-            cImage.close();
-            return view;
-        }
-
-        public void add(String result) {
-
-            mThumbIds.add(result);
-        }
-        public void clear(){
-            mThumbIds.clear();
-        }
-
-
-    }
 }

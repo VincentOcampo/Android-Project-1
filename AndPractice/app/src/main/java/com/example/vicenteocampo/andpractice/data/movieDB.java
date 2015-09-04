@@ -11,7 +11,7 @@ import com.example.vicenteocampo.andpractice.data.MovieContract.MovieEntry;
  */
 public class MovieDB extends SQLiteOpenHelper {
 
-     private static final int DATABASE_VERSION = 1;
+     private static final int DATABASE_VERSION = 2;
 
 
      MovieDB(Context context){
