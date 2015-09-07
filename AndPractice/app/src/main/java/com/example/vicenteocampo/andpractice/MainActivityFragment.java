@@ -1,7 +1,11 @@
 package com.example.vicenteocampo.andpractice;
 
+import android.support.v4.app.LoaderManager;
 import android.content.Context;
+import android.support.v4.content.CursorLoader;
+
 import android.content.Intent;
+import android.support.v4.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,29 +23,16 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.example.vicenteocampo.andpractice.data.MovieContract;
-import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     MovieAdapter gridAdapter;
     String source;
     String apiKey;
-
+    private static final int LOADER_ID = 1;
 
     public MainActivityFragment() {
 
@@ -58,6 +49,13 @@ public class MainActivityFragment extends Fragment {
         // xml contains fragment with grid
         setHasOptionsMenu(true);
         apiKey = "" ;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(1, null, this);
+        super.onActivityCreated(savedInstanceState);
+
     }
 
     @Override
@@ -98,8 +96,6 @@ public class MainActivityFragment extends Fragment {
         if(savedInstanceState != null)
             source = savedInstanceState.getString("url");
 
-
-
             gridAdapter = new MovieAdapter(getActivity(),cur,0);
             gridview.setAdapter(gridAdapter);
 
@@ -119,6 +115,22 @@ public class MainActivityFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(),MovieContract.MovieEntry.CONTENT_URI, null,null,
+                null,null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        gridAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        gridAdapter.swapCursor(null);
     }
 
 

@@ -161,7 +161,6 @@ public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
             } catch (JSONException e) {
 
             }
-
             return null;
         }
 
