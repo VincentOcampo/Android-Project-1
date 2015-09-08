@@ -7,9 +7,7 @@ import android.support.v4.content.CursorLoader;
 import android.content.Intent;
 import android.support.v4.content.Loader;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
+
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -53,7 +51,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(1, null, this);
+        getLoaderManager().initLoader(LOADER_ID, null, this);
         super.onActivityCreated(savedInstanceState);
 
     }
@@ -68,12 +66,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 case R.id.sort_popular:
                     source = "http://api.themoviedb.org/3/discover/movie?sort_" +
                     "by=popularity.desc&api_key=" + apiKey;
-                    new FetchMoviesTask(getActivity(),gridAdapter).execute(source);
+                    new FetchMoviesTask(getActivity()).execute(source);
                     return true;
                 case R.id.sort_top:
                     source = "http://api.themoviedb.org/3/discover/movie?sort_" +
                             "by=vote_average.desc&api_key=" + apiKey;
-                    new FetchMoviesTask(getActivity(),gridAdapter).execute(source);
+                    new FetchMoviesTask(getActivity()).execute(source);
                     return true;
                 default:
                     return super.onOptionsItemSelected(item);
@@ -89,26 +87,27 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         final GridView gridview = (GridView) rootView.findViewById(R.id.grid);
         //Adapter places images into the Gridview object
-        Cursor cur = getActivity().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,null
-        ,null,null,null);
+
         source = "http://api.themoviedb.org/3/discover/movie?sort_" +
                 "by=popularity.desc&api_key=" + apiKey;
         if(savedInstanceState != null)
             source = savedInstanceState.getString("url");
 
-            gridAdapter = new MovieAdapter(getActivity(),cur,0);
+            gridAdapter = new MovieAdapter(getActivity(),null,0);
             gridview.setAdapter(gridAdapter);
 
 
             //Query for data, API key is omitted on public repo
             // Source: https://www.themoviedb.org/documentation/api?language=en
-            new FetchMoviesTask(getActivity(),gridAdapter).execute(source);
+            new FetchMoviesTask(getActivity()).execute(source);
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Intent  details = new Intent(getActivity(), DetailsActivity.class);
+                details.setData(MovieContract.MovieEntry.CONTENT_URI);
                 details.putExtra("id",position);
                 startActivity(details);
             }
@@ -125,11 +124,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
         gridAdapter.swapCursor(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+
         gridAdapter.swapCursor(null);
     }
 

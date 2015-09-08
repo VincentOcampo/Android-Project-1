@@ -28,11 +28,11 @@ import java.util.HashMap;
 public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
 
     Context mContext;
-    MovieAdapter gridAdapter;
 
-    public FetchMoviesTask(Context mContext,MovieAdapter imageAdapter){
+
+    public FetchMoviesTask(Context mContext){
             this.mContext = mContext;
-            gridAdapter = imageAdapter;
+
 
     }
         //JSON Parsing
@@ -164,11 +164,7 @@ public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
             return null;
         }
 
-        protected void onPostExecute(String[] result) {
-                gridAdapter.notifyDataSetChanged();
 
-
-        }
     }
 
 
