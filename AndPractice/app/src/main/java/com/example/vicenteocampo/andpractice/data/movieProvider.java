@@ -22,11 +22,11 @@ public class MovieProvider extends ContentProvider {
 
 
     static UriMatcher buildUriMatcher(){
+        //TODO: use UriMatcher when implementing fav table
+        //UriMatcher match incoming Uri to a specific table
 
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = MovieContract.CONTENT_AUTHORITY;
-
-
         matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIES );
 
         return matcher;
@@ -96,6 +96,7 @@ public class MovieProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        //TODO: use match when updating fav table
         final int match = sUriMatcher.match(uri);
 
         int rowsUpdated;
@@ -109,7 +110,7 @@ public class MovieProvider extends ContentProvider {
         }
         return rowsUpdated;
     }
-
+    // Useful for inserting a batch of movies
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values){
 
@@ -124,7 +125,6 @@ public class MovieProvider extends ContentProvider {
                     returnCount++;
                 }
             }
-
             db.setTransactionSuccessful();
         }finally {
             db.endTransaction();

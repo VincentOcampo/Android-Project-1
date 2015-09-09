@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -21,41 +20,16 @@ import android.widget.TextView;
 import com.example.vicenteocampo.andpractice.data.MovieContract;
 
 public class DetailsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final int DETAILLOADER_ID = 0;
+
+    private static final int DETAIL_LOADER_ID = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(DETAILLOADER_ID,null,this);
+        getLoaderManager().initLoader(DETAIL_LOADER_ID, null, this);
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_details);
 
-        Cursor cDetails = getContentResolver().query(
-                MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
-
-        cDetails.moveToPosition(getIntent().getIntExtra("id", 0));
-        TextView plot = (TextView) findViewById(R.id.moviePlot);
-        plot.setText(cDetails.getString(cDetails.getColumnIndex(MovieContract.MovieEntry.COlUMN_SUMMARY)));
-        plot.setTextColor(Color.WHITE);
-
-        TextView movieInfo = (TextView) findViewById(R.id.movieInfo);
-        movieInfo.setText(cDetails.getString(cDetails.getColumnIndex(MovieContract.MovieEntry.COLUMN_INFO)));
-        movieInfo.setTextColor(Color.WHITE);
-
-
-        ImageView poster = (ImageView) findViewById(R.id.detailImage);
-        poster.setAdjustViewBounds(true);
-        Bitmap b;
-        byte[] res = cDetails.getBlob(cDetails.getColumnIndex(MovieContract.
-                MovieEntry.COLUMN_POSTER));
-
-
-        b = BitmapFactory.decodeByteArray(res, 0, res.length);
-        poster.setImageBitmap(b);
-        cDetails.close();
-
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -88,7 +62,7 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
         return new CursorLoader(this,MovieContract.MovieEntry.CONTENT_URI, null,null,
                 null,null);
     }
-
+    //Once our cursor loads the views are populated
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
@@ -113,7 +87,6 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
         poster.setImageBitmap(b);
 
     }
-
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {

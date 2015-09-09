@@ -23,6 +23,7 @@ public class MovieAdapter extends CursorAdapter {
         mContext = context;
 
     }
+    //create the type of view used in our gridview
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
        ImageView view = new ImageView(mContext);
@@ -34,7 +35,7 @@ public class MovieAdapter extends CursorAdapter {
         view.setPadding(10, 10, 10, 10);
         return view ;
     }
-
+    // Bind data from our table to the created views using a cursor
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         ImageView view1 = (ImageView) view;

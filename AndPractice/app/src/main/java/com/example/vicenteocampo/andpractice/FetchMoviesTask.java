@@ -25,32 +25,30 @@ import java.util.HashMap;
 /**
  * Created by Vicente Ocampo on 8/30/2015.
  */
-public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
+public class FetchMoviesTask extends AsyncTask<String,Void,Void> {
 
     Context mContext;
 
 
     public FetchMoviesTask(Context mContext){
             this.mContext = mContext;
-
-
     }
-        //JSON Parsing
 
-    public String[] getSortedMoviesArray(String result) throws JSONException {
+        //JSON Parsing and inserting  movie details to db
+    public void getSortedMoviesArray(String result) throws JSONException {
             String baseString = "http://image.tmdb.org/t/p/w342/";
             String[] finalList;
 
             JSONObject reader = new JSONObject(result);
             JSONArray topRatedMovies = reader.getJSONArray("results");
             finalList = new String[topRatedMovies.length()];
+
             Cursor cFetch = mContext.getContentResolver().query(
                     MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
-//TODO: Image adapter no longer needs finalList array. Get size from  cursor
+            // Use contentprovider to insert the parsed data
             for (int i = 0; i < topRatedMovies.length(); i++) {
                     JSONObject movie = topRatedMovies.getJSONObject(i);
                     finalList[i] = baseString + movie.getString("poster_path");
-
                     if(!cFetch.moveToPosition(i)) {
                         ContentValues movieValues = new ContentValues();
                         movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER, getPoster
@@ -63,7 +61,7 @@ public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
                 }
 
              cFetch.close();
-            return finalList;
+
     }
 
     public byte[] getPoster (String data) {
@@ -71,12 +69,11 @@ public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
         String baseString = "http://image.tmdb.org/t/p/w342/";
         int result;
         byte[] finResult = null;
-        InputStream  is = null;
+        InputStream  is ;
         Log.v("url",baseString + data);
         ByteArrayOutputStream oBuf = new ByteArrayOutputStream();
         try {
-
-
+            //get poster image's bytearray to insert as blob in table
             URL url = new URL(baseString + data);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.connect();
@@ -89,6 +86,7 @@ public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
             }
             finResult = oBuf.toByteArray();
             oBuf.close();
+
         } catch(IOException e){}
 
 
@@ -108,20 +106,20 @@ public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
         String title = "Title: ";
         String release = "Release Date: ";
         String voteAverage = "Vote Average: ";
-
-
         try {
+
             JSONObject movie = new JSONObject(data);
             title = title +  movie.getString("title") + "\n";
             voteAverage = voteAverage + movie.getString("vote_average") ;
             release = release + movie.getString("release_date") + "\n";
+
         }catch(JSONException e){}
         return title + release + voteAverage;
     }
-
+        // obtaining json data runs in an asynchronous thread
         @Override
-        protected String[] doInBackground(String... params) {
-            String result;
+        protected Void doInBackground(String... params) {
+            String result =  null;
             InputStream incoming = null;
             try {
 
@@ -145,8 +143,7 @@ public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
                 }
 
             } catch (IOException e) {
-                return null;
-
+                Log.v("background","error in reading incoming json data");
             } finally {
                 if (incoming != null) {
                     try {
@@ -157,14 +154,12 @@ public class FetchMoviesTask extends AsyncTask<String,Void,String[]> {
             }
             try {
                 // send result to be parsed
-                return getSortedMoviesArray(result);
+                 getSortedMoviesArray(result);
             } catch (JSONException e) {
 
             }
             return null;
         }
-
-
     }
 
 

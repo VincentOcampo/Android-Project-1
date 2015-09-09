@@ -42,12 +42,11 @@ public class MovieContract {
 
         public static final String COLUMN_INFO  = "info";
 
-
-
+        // return Uri for a specific movie in db
         public static Uri buildMovieUri(long id){
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
-
+        //TODO create fav table
         public static Uri buildMovieSlot(String movieId){
             return CONTENT_URI.buildUpon().appendPath(movieId).build();
         }

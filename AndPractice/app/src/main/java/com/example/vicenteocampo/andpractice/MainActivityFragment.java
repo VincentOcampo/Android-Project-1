@@ -46,7 +46,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         super.onCreate(savedInstanceState);
         // xml contains fragment with grid
         setHasOptionsMenu(true);
-        apiKey = "" ;
+        //Query for data, API key is omitted on public repo
+        // Source: https://www.themoviedb.org/documentation/api?language=en
+        apiKey = "";
     }
 
     @Override
@@ -87,7 +89,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         final GridView gridview = (GridView) rootView.findViewById(R.id.grid);
         //Adapter places images into the Gridview object
-
+        // a new fetchMovies task is created
         source = "http://api.themoviedb.org/3/discover/movie?sort_" +
                 "by=popularity.desc&api_key=" + apiKey;
         if(savedInstanceState != null)
@@ -96,16 +98,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             gridAdapter = new MovieAdapter(getActivity(),null,0);
             gridview.setAdapter(gridAdapter);
 
-
-            //Query for data, API key is omitted on public repo
-            // Source: https://www.themoviedb.org/documentation/api?language=en
             new FetchMoviesTask(getActivity()).execute(source);
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                // Provide details for a specific movie to the detailsActivity through an intent
                 Intent  details = new Intent(getActivity(), DetailsActivity.class);
                 details.setData(MovieContract.MovieEntry.CONTENT_URI);
                 details.putExtra("id",position);
@@ -115,7 +114,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         return rootView;
     }
-
+    //handles the lifetime of out cursor used in out adapter
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(),MovieContract.MovieEntry.CONTENT_URI, null,null,
