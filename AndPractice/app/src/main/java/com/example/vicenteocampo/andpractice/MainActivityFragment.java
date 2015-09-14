@@ -1,24 +1,22 @@
 package com.example.vicenteocampo.andpractice;
 
-import android.support.v4.app.LoaderManager;
-import android.content.Context;
-import android.support.v4.content.CursorLoader;
 
+
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
-import android.support.v4.content.Loader;
-import android.database.Cursor;
 
-import android.support.v4.app.Fragment;
+import android.content.Loader;
+import android.database.Cursor;
+import android.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
+
 
 import com.example.vicenteocampo.andpractice.data.MovieContract;
 
@@ -54,6 +52,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(LOADER_ID, null, this);
+
         super.onActivityCreated(savedInstanceState);
 
     }
@@ -63,17 +62,19 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml
-
+            getActivity().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,null,null);
             switch(item.getItemId()){
                 case R.id.sort_popular:
+                    getActivity().getActionBar().setTitle("Pop Movies");
                     source = "http://api.themoviedb.org/3/discover/movie?sort_" +
                     "by=popularity.desc&api_key=" + apiKey;
-                    new FetchMoviesTask(getActivity()).execute(source);
+                    onSettingChanged(source);
                     return true;
                 case R.id.sort_top:
+                    getActivity().getActionBar().setTitle("Top Rated Movies");
                     source = "http://api.themoviedb.org/3/discover/movie?sort_" +
                             "by=vote_average.desc&api_key=" + apiKey;
-                    new FetchMoviesTask(getActivity()).execute(source);
+                    onSettingChanged(source);
                     return true;
                 default:
                     return super.onOptionsItemSelected(item);
@@ -106,13 +107,18 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // Provide details for a specific movie to the detailsActivity through an intent
                 Intent  details = new Intent(getActivity(), DetailsActivity.class);
-                details.setData(MovieContract.MovieEntry.CONTENT_URI);
                 details.putExtra("id",position);
                 startActivity(details);
             }
         });
 
         return rootView;
+    }
+
+    public void onSettingChanged(String source){
+        new FetchMoviesTask(getActivity()).execute(source);
+        getLoaderManager().restartLoader(LOADER_ID,null, this);
+
     }
     //handles the lifetime of out cursor used in out adapter
     @Override

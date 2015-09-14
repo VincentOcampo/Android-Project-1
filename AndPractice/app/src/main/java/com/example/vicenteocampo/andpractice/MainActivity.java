@@ -1,16 +1,17 @@
 package com.example.vicenteocampo.andpractice;
 
-import android.support.v7.app.AppCompatActivity;
+
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuItem;
 //Vicente Ocampo
 //Udacity Project
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // xml contains fragment that contains grid
         setContentView(R.layout.activity_main);
 

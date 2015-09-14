@@ -42,8 +42,9 @@ public class MovieAdapter extends CursorAdapter {
         Bitmap b;
         byte[] res = cursor.getBlob(cursor.getColumnIndex(MovieContract.
                 MovieEntry.COLUMN_POSTER));
-        b = BitmapFactory.decodeByteArray(res, 0, res.length);
-        view1.setImageBitmap(b);
-
+        if(res != null) {
+            b = BitmapFactory.decodeByteArray(res, 0, res.length);
+            view1.setImageBitmap(b);
+        }
     }
 }

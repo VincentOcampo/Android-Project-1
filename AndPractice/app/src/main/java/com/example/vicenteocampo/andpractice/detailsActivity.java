@@ -2,6 +2,7 @@ package com.example.vicenteocampo.andpractice;
 
 
 
+import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -9,8 +10,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.example.vicenteocampo.andpractice.data.MovieContract;
 
-public class DetailsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class DetailsActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int DETAIL_LOADER_ID = 0;
 
@@ -55,10 +55,6 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Intent intent = getIntent();
-        if( intent == null){
-            return null;
-        }
         return new CursorLoader(this,MovieContract.MovieEntry.CONTENT_URI, null,null,
                 null,null);
     }
@@ -69,11 +65,11 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
         data.moveToPosition(getIntent().getIntExtra("id", 0));
         TextView plot = (TextView) findViewById(R.id.moviePlot);
         plot.setText(data.getString(data.getColumnIndex(MovieContract.MovieEntry.COlUMN_SUMMARY)));
-        plot.setTextColor(Color.WHITE);
+       // plot.setTextColor(Color.WHITE);
 
         TextView movieInfo = (TextView) findViewById(R.id.movieInfo);
         movieInfo.setText(data.getString(data.getColumnIndex(MovieContract.MovieEntry.COLUMN_INFO)));
-        movieInfo.setTextColor(Color.WHITE);
+        //movieInfo.setTextColor(Color.WHITE);
 
 
         ImageView poster = (ImageView) findViewById(R.id.detailImage);
