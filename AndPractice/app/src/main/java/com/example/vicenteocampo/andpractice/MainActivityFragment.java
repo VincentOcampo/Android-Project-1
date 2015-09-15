@@ -28,6 +28,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     MovieAdapter gridAdapter;
     String source;
     String apiKey;
+    private static final String POP = "Popular Movies";
+    private static final String TOP = "Top Rated Movies";
+    private static int SORT_SELECT = 1;
     private static final int LOADER_ID = 1;
 
     public MainActivityFragment() {
@@ -37,6 +40,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putString("url",source);
+        savedInstanceState.putInt("sorting", SORT_SELECT);
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +56,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(LOADER_ID, null, this);
-
         super.onActivityCreated(savedInstanceState);
 
     }
@@ -65,15 +68,17 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             getActivity().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,null,null);
             switch(item.getItemId()){
                 case R.id.sort_popular:
-                    getActivity().getActionBar().setTitle("Pop Movies");
+                    getActivity().getActionBar().setTitle(POP);
                     source = "http://api.themoviedb.org/3/discover/movie?sort_" +
                     "by=popularity.desc&api_key=" + apiKey;
+                    SORT_SELECT = 1;
                     onSettingChanged(source);
                     return true;
                 case R.id.sort_top:
-                    getActivity().getActionBar().setTitle("Top Rated Movies");
+                    getActivity().getActionBar().setTitle(TOP);
                     source = "http://api.themoviedb.org/3/discover/movie?sort_" +
                             "by=vote_average.desc&api_key=" + apiKey;
+                    SORT_SELECT = 2;
                     onSettingChanged(source);
                     return true;
                 default:
@@ -93,9 +98,19 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         // a new fetchMovies task is created
         source = "http://api.themoviedb.org/3/discover/movie?sort_" +
                 "by=popularity.desc&api_key=" + apiKey;
-        if(savedInstanceState != null)
+        if(savedInstanceState != null) {
             source = savedInstanceState.getString("url");
+            SORT_SELECT = savedInstanceState.getInt("sorting");
+            switch(SORT_SELECT) {
 
+                case 1:
+                    getActivity().getActionBar().setTitle(POP);
+                    break;
+                case 2:
+                    getActivity().getActionBar().setTitle(TOP);
+                    break;
+            }
+        }
             gridAdapter = new MovieAdapter(getActivity(),null,0);
             gridview.setAdapter(gridAdapter);
 
