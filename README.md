@@ -5,5 +5,5 @@ NOTE: Personal API key was omitted must request own key at https://www.themovied
 TODO/FIX
 
 - [x] action bar title changes when orientation changes
-- Add reviews and video trailers
-- adapter for reviews and trailers
+- []Add reviews and video trailers
+- []Adapter for reviews and trailers
