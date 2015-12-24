@@ -7,3 +7,4 @@ TODO/FIX
 - [x] Action bar title changes when orientation changes
 - [ ] Add reviews and video trailers
 - [ ] Adapter for reviews and trailers
+- [ ] fix null json object problem
