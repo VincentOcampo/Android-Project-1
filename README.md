@@ -2,7 +2,7 @@
 
 NOTE: Personal API key was omitted must request own key at https://www.themoviedb.org/documentation/api
 
-TODO/FIX
+TODO
 
 - [x] Action bar title changes when orientation changes
 - [ ] Add reviews and video trailers
